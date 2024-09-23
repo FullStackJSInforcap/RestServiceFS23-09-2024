@@ -63,13 +63,34 @@ app.post('/', (req, res) => {
 });
 
 app.put('/', (req, res) => {
-    const parametros = req.body;
-    res.json(parametros);
+    const nombre = req.body.nombre;
+    const nombreActualizar = req.body.nombreActualizar;
+    fs.readFile('./usuarios.txt', (err, datos) => {
+        datos = datos.toString();
+        datos = datos.replace(nombre, nombreActualizar);
+        fs.writeFile('usuarios.txt', datos, () => {
+            res.json({
+                msg: `el usuario ${nombre} se actualizó correctamente con ${nombreActualizar}`
+            });
+        });
+    });
 });
 
 app.delete('/:nombre', (req, res) => {
-    const parametros = req.params;
-    res.json(parametros);
+    const nombre = req.params.nombre;
+    fs.readFile('usuarios.txt', (err, datos) => {
+        datos = datos.toString();
+        datos = datos.split(/\n/);
+        let filtrados = datos.filter((nombreTemporal) => {
+            return nombreTemporal != nombre;
+        });
+        filtrados = filtrados.join('\n');
+        fs.writeFile('usuarios.txt', filtrados, () => {
+            res.json({
+                msg: `El usuario ${nombre} se eliminó del archivo`
+            });
+        });
+    });
 });
 
 app.listen(3000, () => {
